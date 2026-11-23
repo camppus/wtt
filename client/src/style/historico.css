@@ -1,0 +1,124 @@
+:root {
+  --primary: #0f1629;
+  --secondary: #182038;
+  --highlight: #e94560;
+  --text: #fff;
+  --light-bg: #fff;
+  --button-bg: #16213e;
+}
+
+/* Reset seguro */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.historico-wrapper {
+  background-color: var(--primary);
+  color: var(--text);
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+
+
+
+/* Header responsivo */
+header {
+  width: 100%;
+  background-color: #111a33;
+  padding: 18px;
+  text-align: center;
+  font-weight: bold;
+  font-size: clamp(16px, 2.5vw, 22px);
+  color: var(--highlight);
+}
+
+
+
+/* Container principal */
+.container {
+  width: 50%;
+  max-width: 650px;
+  margin: 90px auto 40px auto;
+  background-color: var(--secondary);
+  padding: clamp(15px, 3vw, 30px);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); 
+  margin-top: 100%;
+}
+
+
+
+
+
+
+/* Botões */
+.status-buttons,
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Botões responsivos */
+button {
+  flex: 1 1 calc(50% - 10px);
+  min-width: 120px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: clamp(13px, 2vw, 15px);
+  background-color: var(--button-bg);
+  color: var(--text);
+  transition: 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--highlight);
+  transform: scale(1.03);
+}
+
+button.active {
+  background-color: var(--highlight);
+}
+
+/* Caixa de resultado */
+.result-box {
+  background-color: var(--light-bg);
+  border-radius: 10px;
+  min-height: 180px;
+  padding: 20px;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 500;
+  font-size: clamp(14px, 2vw, 16px); 
+
+}
+
+/* ===== MOBILE AJUSTE EXTRA ===== */
+@media (max-width: 480px) {
+  .container {
+    margin-top: 20px;
+    padding: 15px;
+  }
+
+  button {
+    flex: 1 1 100%;
+  }
+
+  .result-box {
+    min-height: 150px;
+  }
+}

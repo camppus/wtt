@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum MatchStatus {
+  OPEN
+  CLOSED
+  FINISHED
+  CANCELED
+}
+
+enum OddType {
+  HOME_WIN
+  DRAW
+  AWAY_WIN
+}
+
+enum BetSlipStatus {
+  PENDING
+  WON
+  LOST
+  CANCELED
+}
+
+enum NotificationType {
+  SYSTEM
+  BET
+  PAYMENT
+  MESSAGE
+}
+enum PaymentStatus {
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+  FAILED
+}
+
+enum TransationsMehtod {
+  IBAN
+  EXPRESS
+}
+
+
+
+model User {
+  id               String   @id @default(uuid())
+  role             UserRole @default(CLIENT)
+  name             String
+  phone            String   @unique
+  password         String
+  balance          Decimal  @default(0) @db.Decimal(12, 2)
+  isActive         Boolean  @default(true)
+  widthdrawls     Widthdrawls[]
+  betSlips         BetSlip[]
+  notifications    Notification[]
+  chats            Chat[]   @relation("UserChats")
+  adminChats       Chat[]   @relation("AdminChats")
+  payments Payment[]
+  messages         Message[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Payment {
+  id                String                  @id @default(uuid())
+  userId            String
+  reference         String                  @unique
+  externalReference String   @unique
+  provider String
+  idempotencyKey    String   @unique
+  amount            Decimal @db.Decimal(12, 2)
+  currency          String                  @default("AOA")
+  status            PaymentStatus           @default(PENDING)
+  fee               Decimal @db.Decimal(12, 2)
+  expiresAt         DateTime?
+  paidAt            DateTime?
+  cancelledAt       DateTime?
+  failedAt          DateTime?
+  metadata          Json?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, idempotencyKey])
+  @@index([userId, status])
+  @@index([status, expiresAt])
+  @@index([amount, status])
+  @@map("payment")
+}
+
+model Widthdrawls {
+  id            String             @id @default(uuid())
+  userId        String
+  status        TransactionStatus  @default(PENDING)
+  fee               Decimal @db.Decimal(12, 2)
+  amount        Decimal            @db.Decimal(12, 2)
+  coordnate String
+  method  TransationsMehtod
+  replayedById String?
+  fileUrl String?
+  notes String?
+  createdAt     DateTime @default(now())
+  updatedAt         DateTime                @updatedAt
+  paidAt            DateTime?
+  cancelledAt       DateTime?
+  user          User               @relation(fields: [userId], references: [id])
+}
+
+model Match {
+  id          String       @id @default(uuid())
+  externId String  @unique
+  key String
+  homeTeam    String
+  awayTeam    String
+  startAt     DateTime
+  status      MatchStatus @default(OPEN)
+  completed Boolean @default(false)
+  odds        Odd[]
+  picks       BetPick[]
+  scores Json
+  createdAt   DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+
+model Odd {
+  id        String   @id @default(uuid())
+  matchId  String
+  type     OddType
+  value    Decimal  @db.Decimal(6, 2)
+  match    Match    @relation(fields: [matchId], references: [id])
+  @@unique([matchId, type])
+}
+
+
+model BetSlip {
+  id            String         @id @default(uuid())
+  userId        String
+  stake         Decimal        @db.Decimal(12, 2)
+  totalOdd      Decimal        @db.Decimal(8, 2)
+  possibleWin   Decimal        @db.Decimal(12, 2)
+  status        BetSlipStatus  @default(PENDING)
+  picks         BetPick[]
+  user          User           @relation(fields: [userId], references: [id])
+  createdAt     DateTime       @default(now())
+  resolvedAt    DateTime?
+  @@index([userId])
+}
+
+model BetPick {
+  id          String    @id @default(uuid())
+  betSlipId   String
+  matchId     String
+  oddType     OddType
+  oddValue    Decimal   @db.Decimal(6, 2)
+  match       Match     @relation(fields: [matchId], references: [id])
+  betSlip    BetSlip   @relation(fields: [betSlipId], references: [id])
+  @@unique([betSlipId, matchId])
+}
+
+
+model Chat {
+  id        String   @id @default(uuid())
+  userId    String
+  adminId   String
+
+  user      User     @relation("UserChats", fields: [userId], references: [id])
+  admin     User     @relation("AdminChats", fields: [adminId], references: [id])
+
+  messages  Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, adminId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  senderId  String
+  content   String
+  isRead    Boolean  @default(false)
+
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([chatId, createdAt])
+  @@index([chatId, isRead, senderId])
+}
+
+model Notification {
+  id        String            @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean           @default(false)
+  user      User              @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  @@index([userId])
+}

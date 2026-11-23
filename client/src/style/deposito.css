@@ -1,0 +1,290 @@
+:root {
+  --primary: #1a1a2e;
+  --secondary: #16213e;
+  --accent: #0f3460;
+  --highlight: #e94560;
+  --text: #f0f0f0;
+  --success: #4caf50;
+  --card-bg: #1e2a47;
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--primary);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CONTAINER */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* HEADER */
+header {
+  background-color: var(--secondary);
+  padding: 15px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo img {
+  height: 75px; 
+  
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.balance {
+  background-color: var(--accent);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.btn-profile {
+  background-color: var(--accent);
+  color: var(--text);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: var(--transition);  
+   display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  
+}
+
+.btn-profile:hover {
+  background-color: var(--highlight);
+}
+
+/* MAIN CONTENT */
+.main-content {
+  display: grid;
+  grid-template-columns: 600px 350px; /* largura do depósito reduzida */
+  justify-content: center;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+/* DEPÓSITO */
+.deposit-section {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+}
+
+.section-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: var(--highlight);
+}
+
+/* MÉTODOS DE PAGAMENTO */
+.payment-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.payment-method {
+  background-color: var(--accent);
+  border: 2px solid transparent;
+  border-radius: var(--border-radius);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.payment-method:hover {
+  background-color: var(--highlight);
+  transform: translateY(-3px);
+}
+
+.payment-method.active {
+  border-color: var(--highlight);
+  background-color: rgba(233, 69, 96, 0.2);
+}
+
+.payment-method img,
+.payment-method i {
+  font-size: 24px;
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.payment-method span {
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* FORMULÁRIO */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  background-color: var(--accent);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  color: var(--text);
+  font-size: 16px;
+  transition: var(--transition);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--highlight);
+  box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.3);
+}
+
+/* BOTÃO DEPOSITO */
+.btn-deposit {
+  background-color: var(--highlight);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 15px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-deposit:hover {
+  background-color: #d32f44;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* BONUS */
+.bonus-section {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+
+.bonus-title {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--highlight);
+}
+
+.bonus-description {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* HISTÓRICO DE TRANSAÇÕES */
+.transaction-history {
+  margin-top: 20px;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--accent);
+}
+
+.transaction-status.completed {
+  color: var(--success);
+}
+
+/* FOOTER */
+footer {
+  margin-top: auto;
+  background-color: var(--secondary);
+  padding: 20px 0;
+  text-align: center;
+}
+
+.security-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  color: rgba(240, 240, 240, 0.7);
+  font-size: 14px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+} 
+.main-content {
+  display: grid;
+  grid-template-columns: 300px 350px; /* depósito ainda menor */
+  justify-content: center;
+  gap: 30px;
+  margin-top: 30px;
+} 
+/* Tablets menores */
+@media (max-width: 600px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 10px;
+  }
+}
+
+/* Telemóveis pequenos */
+@media (max-width: 400px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+
