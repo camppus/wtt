@@ -41,6 +41,9 @@ export default class User extends Entity {
     return this.props.isActive;
   }
 
+  public isAdmin() {
+    return this.props.role === UserRole.ADMIN;
+  }
   public changeName(name: Name) {
     this.props.name = name;
     this.touch();

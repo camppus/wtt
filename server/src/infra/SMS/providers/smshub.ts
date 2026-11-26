@@ -2,9 +2,9 @@
 import { Logger } from '@nestjs/common';
 import axios from 'axios';
 import { SMSService } from '..';
-import { PhoneNumber } from '@/shared/entities/PhoneNumber';
+import { PhoneNumber } from '@/modules/users/domain/entities/PhoneNumber';
 
-export class SmsHub extends SMSService {
+export class SmsHub implements SMSService {
   private readonly logger = new Logger(SmsHub.name);
   private readonly auth_id = process.env.SMS_ID ?? '';
   private readonly secret_key = process.env.SMS_KEY ?? '';

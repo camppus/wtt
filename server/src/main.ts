@@ -5,6 +5,7 @@ import compression from 'compression';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import ErrorFilter from './shared/http/interceptors/error.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -29,6 +30,7 @@ async function bootstrap() {
       pageTitle: 'Wtt',
     }),
   );
+  app.useGlobalFilters(new ErrorFilter());
   app.enableCors();
   app.use(helmet());
   app.use(compression());

@@ -15,11 +15,11 @@ export interface CreateGameDto {
   homeTeam: string;
   awayTeam: string;
   startAt: Date;
-  odds?: Array<{
+  odds: Array<{
     type: OddType;
     value: number;
   }>;
-  scores?: Score[];
+  scores: Score;
 }
 
 @Injectable()
@@ -40,8 +40,6 @@ export default class CreateGameUseCase {
     const gameId = Id.generate();
 
     const odds: Odd[] = (dto.odds ?? []).map((odd) => ({
-      id: Id.generate(),
-      matchId: gameId,
       type: odd.type,
       value: odd.value,
     }));
@@ -55,7 +53,7 @@ export default class CreateGameUseCase {
       startAt: dto.startAt,
       status: MatchStatus.OPEN,
       completed: false,
-      scores: dto.scores ?? [],
+      scores: dto.scores,
       odds,
       createdAt: now,
       updatedAt: now,

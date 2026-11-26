@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-
+import { Prisma, Match } from '@prisma/client';
 import Id from '@/shared/entities/Id';
 import { Pagination, PaginationInput } from '@/shared/types';
 import PrimaService from '@/infra/database/Prisma/prisma.service';
@@ -9,17 +8,10 @@ import PrimaService from '@/infra/database/Prisma/prisma.service';
 import Game, {
   GameProps,
   MatchStatus,
-  OddType,
   Score,
 } from '../../domain/entities/Game';
 
 import GameRepo from '../../domain/repositories/GameRepo';
-
-type MatchWithOdds = Prisma.MatchGetPayload<{
-  include: {
-    odds: true;
-  };
-}>;
 
 @Injectable()
 export default class PrismaGameRepo implements GameRepo {
@@ -43,13 +35,7 @@ export default class PrismaGameRepo implements GameRepo {
         status: data.status,
         completed: data.completed,
         scores: data.scores as any,
-        odds: {
-          create: data.odds.map((odd) => ({
-            id: odd.id.getValue(),
-            type: odd.type,
-            value: odd.value,
-          })),
-        },
+        odds: data.odds as any,
       },
 
       update: {
@@ -68,7 +54,6 @@ export default class PrismaGameRepo implements GameRepo {
   public async getById(id: Id): Promise<Game | null> {
     const game = await this.prisma.match.findUnique({
       where: { id: id.getValue() },
-      include: { odds: true },
     });
 
     return game ? this.toDomain(game) : null;
@@ -77,7 +62,6 @@ export default class PrismaGameRepo implements GameRepo {
   public async getByExternId(externId: string): Promise<Game | null> {
     const game = await this.prisma.match.findUnique({
       where: { externId },
-      include: { odds: true },
     });
 
     return game ? this.toDomain(game) : null;
@@ -93,7 +77,6 @@ export default class PrismaGameRepo implements GameRepo {
         skip,
         take: limit,
         orderBy: { startAt: 'desc' },
-        include: { odds: true },
       }),
       this.prisma.match.count(),
     ]);
@@ -113,7 +96,6 @@ export default class PrismaGameRepo implements GameRepo {
         status: 'OPEN',
         startAt: { lte: date },
       },
-      include: { odds: true },
     });
 
     return games.map((game) => this.toDomain(game));
@@ -125,13 +107,12 @@ export default class PrismaGameRepo implements GameRepo {
         status: 'OPEN',
         startAt: { lte: date },
       },
-      include: { odds: true },
     });
 
     return games.map((game) => this.toDomain(game));
   }
 
-  private toDomain(data: MatchWithOdds): Game {
+  private toDomain(data: Match): Game {
     const props: GameProps = {
       id: new Id(data.id),
       externId: data.externId,
@@ -141,12 +122,7 @@ export default class PrismaGameRepo implements GameRepo {
       startAt: data.startAt,
       status: data.status as MatchStatus,
       completed: data.completed,
-      odds: data.odds.map((odd) => ({
-        id: new Id(odd.id),
-        matchId: new Id(odd.matchId),
-        type: odd.type as OddType,
-        value: Number(odd.value),
-      })),
+      odds: data.odds as any,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
       scores: this.toScore(data.scores) as any,

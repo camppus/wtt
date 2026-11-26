@@ -21,17 +21,17 @@ export default class CreateUserUseCase {
   public async handle(dto: CreateUserDto): Promise<UserDto> {
     const phone = new PhoneNumber(dto.phone);
     const name = new Name(dto.name);
+    console.log(name.getName());
     const password = new Password(dto.password);
     const passwordHash = this.hasher.hash(password);
     const userWithPhone = await this.repo.getByPhone(phone);
-
     if (userWithPhone) {
       throw new PhoneInUseError();
     }
 
     const now = new Date();
     const user = new User({
-      balance: new Money(0),
+      balance: new Money(0, true),
       createdAt: now,
       id: Id.generate().getValue(),
       isActive: true,
@@ -42,6 +42,7 @@ export default class CreateUserUseCase {
       role: 'CLIENT',
     });
 
+    await this.repo.save(user);
     return user.toEnttie() as UserDto;
   }
 }

@@ -16,6 +16,7 @@ export default interface ConversationRepo {
     chatId: Id,
     pagination: PaginationInput,
   ): Promise<Pagination<Message>>;
+
   getUnreadMessages(chatId: Id, userId: Id): Promise<Message[]>;
   countUnreadMessages(chatId: Id, userId: Id): Promise<number>;
   markMessageAsRead(messageId: Id): Promise<void>;

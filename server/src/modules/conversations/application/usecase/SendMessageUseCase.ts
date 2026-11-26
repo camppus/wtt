@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import Id from '@/shared/entities/Id';
-import Message from '../entities/Message';
-import ConversationRepo from '../repositories/ConversationRepo';
+import type ConversationRepo from '../../domain/repositories/ConversationRepo';
+import Message from '../../domain/entities/Message';
 
 interface SendMessageInput {
   chatId: Id;

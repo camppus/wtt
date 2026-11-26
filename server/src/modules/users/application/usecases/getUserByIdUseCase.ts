@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import type UserRepo from '../../domain/repositories/UserRepo';
 import User, { UserDto } from '../../domain/entities/User';
 import Id from '@/shared/entities/Id';
-import { UserNotFound } from '@/execptions/user.error';
 
 @Injectable()
 export default class GetUserByIdUseCase {
@@ -15,7 +14,7 @@ export default class GetUserByIdUseCase {
     const user = await this.repo.getById(id);
 
     if (!user) {
-      throw new UserNotFound();
+      throw new Error('user Not found');
     }
 
     return user.toEnttie() as UserDto;
@@ -25,7 +24,7 @@ export default class GetUserByIdUseCase {
     const user = await this.repo.getById(id);
 
     if (!user) {
-      throw new UserNotFound();
+      throw new Error('user Not found');
     }
 
     return user;

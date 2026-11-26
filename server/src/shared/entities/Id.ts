@@ -8,4 +8,8 @@ export default class Id {
   public getValue() {
     return this.value;
   }
+
+  public equals(id: Id) {
+    return this.getValue() === id.getValue();
+  }
 }

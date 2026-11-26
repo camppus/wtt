@@ -8,11 +8,12 @@ import ToggleWidthDrawlsUseCase from '../../application/usecase/toggleWidthdrawl
 import UpdatePaymentUseCase from '../../application/usecase/updatePaymenUseCase';
 import PrismaPaymentRepo from '../persistence/PrismaPaymentRepo';
 import PrismaWidthdrawlRepo from '../persistence/PriamaWidhtdrawlsRepo';
+import UserModule from '@/modules/users/infra/http/userModule';
 
 @Module({
   controllers: [],
   exports: ['PaymentRepository', 'WidthDrawlRepo'],
-  imports: [PaymentGetawayModule],
+  imports: [PaymentGetawayModule, UserModule],
   providers: [
     {
       provide: 'PaymentRepository',

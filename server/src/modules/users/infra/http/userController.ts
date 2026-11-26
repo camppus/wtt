@@ -1,34 +1,34 @@
-import { Body, Controller, Get, Post, Put, Patch, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Put,
+  Patch,
+  Query,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import CreateUserUseCase from '../../application/usecases/createUserUseCase';
 import UpdateUserUseCase from '../../application/usecases/updateUserUseCase';
 import GetUserByIdUseCase from '../../application/usecases/getUserByIdUseCase';
 import GetUsersUseCase from '../../application/usecases/getUsersUseCase';
-import { CreateUserDto } from '../../application/dto/createUserDto';
 import Id from '@/shared/entities/Id';
 import { UpdatUserDto } from '../../application/dto/updateUserDto';
 import ToogleUserUseCase from '../../application/usecases/toogleuserUseCase';
-import { CurrentUserId } from '@/infra/http/decorators/userId.decorator';
+import IsAdminGuard from '@/modules/auth/infra/http/isAdminGuard';
+import { CurrentUserId } from '@/modules/auth/infra/http/userContextDecorator';
+import IsActiveUserGuard from '@/modules/auth/infra/http/userStatusGuard';
 
 @ApiTags('Users')
 @Controller('users')
+@UseGuards(IsActiveUserGuard)
 export class UserController {
   constructor(
-    private readonly createUserUc: CreateUserUseCase,
     private readonly updateUserUc: UpdateUserUseCase,
     private readonly getUserByIdUC: GetUserByIdUseCase,
     private readonly getUsersUC: GetUsersUseCase,
     private readonly toggleUserUc: ToogleUserUseCase,
   ) {}
-
-  @Post()
-  @ApiOperation({
-    summary: 'Cria um novo usuário e envia código de verificação',
-  })
-  @ApiResponse({ status: 201, description: 'Usuário criado com sucesso' })
-  async create(@Body() dto: CreateUserDto) {
-    return await this.createUserUc.handle(dto);
-  }
 
   @Get('me')
   @ApiOperation({ summary: 'Obtém dados do usuário atual' })
@@ -38,6 +38,7 @@ export class UserController {
   }
 
   @Get()
+  @UseGuards(IsAdminGuard)
   @ApiOperation({ summary: 'Lista usuários paginados' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
@@ -57,9 +58,10 @@ export class UserController {
   }
 
   @Patch('toggle/:id')
+  @UseGuards(IsAdminGuard)
   @ApiOperation({ summary: 'Ativa ou desativa um usuário' })
   @ApiResponse({ status: 200, description: 'Usuário alternado' })
-  async toggle(@CurrentUserId() userId: string) {
+  async toggle(@Param('id') userId: string) {
     return await this.toggleUserUc.handle(new Id(userId));
   }
 }

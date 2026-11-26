@@ -1,5 +1,3 @@
-import { InvalidFormatDataExecption } from '@/execptions/format.error';
-
 export class PhoneNumber {
   constructor(private readonly phone: string) {
     this.validate();
@@ -10,19 +8,13 @@ export class PhoneNumber {
   }
   private validate() {
     if (!this.phone) {
-      throw new InvalidFormatDataExecption({
-        item: 'PhoneNumber',
-        message: 'Phone number is required',
-      });
+      throw new Error('Phone number is required');
     }
 
     const phoneRegex = /^\+?[0-9]{9,15}$/;
 
     if (!phoneRegex.test(this.phone)) {
-      throw new InvalidFormatDataExecption({
-        item: 'PhoneNumber',
-        message: 'Invalid phone number format',
-      });
+      throw new Error('Invalid phone number format');
     }
   }
 }

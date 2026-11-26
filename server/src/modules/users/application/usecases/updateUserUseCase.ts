@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import type UserRepo from '../../domain/repositories/UserRepo';
 import { UserDto } from '../../domain/entities/User';
 import Id from '@/shared/entities/Id';
-import { UserNotFound } from '@/execptions/user.error';
 import { UpdatUserDto } from '../dto/updateUserDto';
 import { PhoneNumber } from '../../domain/entities/PhoneNumber';
 import Name from '../../domain/entities/Name';
@@ -28,7 +27,7 @@ export default class UpdateUserUseCase {
     }
 
     if (!user) {
-      throw new UserNotFound();
+      throw new Error('user Not found');
     }
     user.changeName(name);
     user.changePhone(phone);

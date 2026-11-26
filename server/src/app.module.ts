@@ -1,5 +1,4 @@
 import {
-  Logger,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -12,11 +11,14 @@ import { ScheduleModule } from '@nestjs/schedule';
 import UserModule from './modules/users/infra/http/userModule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import PaymentGetawayModule from './modules/transactions/infra/getaway';
-import { ChatModule } from './modules/chats/chat.module';
 import TransactionModule from './modules/transactions/infra/http/transactionModule';
 import GameModule from './modules/games/GameModule';
 import SMSModule from './infra/SMS';
-import AuthMiddleare from './infra/http/middlewares/auth.middleware';
+import ConversationModule from './modules/conversations/ConversationModule';
+import SecurityModule from './infra/security';
+import AuthModule from './modules/auth/authModule';
+import AuthMiddleware from './modules/auth/infra/http/authMiddleware';
+import { CacheModule } from './infra/caching';
 
 @Module({
   imports: [
@@ -40,27 +42,25 @@ import AuthMiddleare from './infra/http/middlewares/auth.middleware';
       global: true,
       maxListeners: 20,
     }),
+    SecurityModule,
     DatabaseModule,
     UserModule,
-    BetsModule,
-    ChatModule,
     TransactionModule,
     PaymentGetawayModule,
     GameModule,
     SMSModule,
+    ConversationModule,
+    AuthModule,
+    CacheModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule implements NestModule {
-  private readonly loggger = new Logger(AppModule.name);
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(AuthMiddleare)
-      .exclude('auth')
+      .apply(AuthMiddleware)
       .exclude({
-        path: '/users',
-        method: RequestMethod.POST,
+        path: 'auth/(.*)',
+        method: RequestMethod.ALL,
       })
       .forRoutes('*');
   }

@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import type UserRepo from '../../domain/repositories/UserRepo';
 import { UserDto } from '../../domain/entities/User';
 import Id from '@/shared/entities/Id';
-import { UserNotFound } from '@/execptions/user.error';
 
 @Injectable()
 export default class ToogleUserUseCase {
@@ -14,7 +13,7 @@ export default class ToogleUserUseCase {
   public async handle(id: Id): Promise<UserDto> {
     const user = await this.repo.getById(id);
     if (!user) {
-      throw new UserNotFound();
+      throw new Error('user Not found');
     }
     user.toogleStatus();
     await this.repo.save(user);

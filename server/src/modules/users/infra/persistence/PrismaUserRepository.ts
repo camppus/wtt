@@ -13,10 +13,21 @@ import { getPagination } from '@/shared/lib';
 @Injectable()
 export default class PrismaUserRepository implements UserRepo {
   constructor(private readonly prisma: PrimaService) {}
+  public async updatePassword(userId: Id, password: string): Promise<void> {
+    await this.prisma.user.update({
+      data: {
+        password,
+      },
+      where: {
+        id: userId.getValue(),
+      },
+    });
+  }
 
   public async save(user: User): Promise<void> {
     const userName = user.toEnttie().name;
-    const name = userName.getName().firstName + userName.getName().lastName;
+    const name =
+      userName.getName().firstName + ' ' + userName.getName().lastName;
     await this.prisma.user.create({
       data: {
         name,
@@ -34,6 +45,18 @@ export default class PrismaUserRepository implements UserRepo {
     const user = await this.prisma.user.findFirst({
       where: {
         id: id.getValue(),
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+    return this.toEntitie(user);
+  }
+  public async getAdmin(): Promise<User | null> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        role: 'ADMIN',
       },
     });
 
@@ -81,9 +104,10 @@ export default class PrismaUserRepository implements UserRepo {
   }
 
   private toEntitie(prismaUser: PrismaUser): User {
+    console.log(prismaUser);
     const phone = new PhoneNumber(prismaUser.phone);
     const name = new Name(prismaUser.name);
-    const balance = new Money(prismaUser.balance.toNumber());
+    const balance = new Money(prismaUser.balance.toNumber(), true);
     const user = new User({
       balance,
       createdAt: prismaUser.createdAt,

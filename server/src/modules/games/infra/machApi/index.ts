@@ -1,12 +1,14 @@
-import { Score } from '../../domain/entities/Game';
+import { Odd, Score } from '../../domain/entities/Game';
 export interface IApiMatch {
   id: string;
   startAt: Date;
   completed: boolean;
   homeTeam: string;
   awayTeam: string;
-  scores: Score[];
+  scores: Score;
   lastUpdate: Date;
+  odds: Odd[];
+  league: string;
 }
 
 export interface IApiMatchService {

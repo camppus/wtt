@@ -28,10 +28,12 @@ export default class SyncGamesJob {
       for (const match of matches) {
         const before = await this.createGameUseCase.handle({
           externId: match.id,
-          key: match.id,
+          key: match.league,
           homeTeam: match.homeTeam,
           awayTeam: match.awayTeam,
           startAt: match.startAt,
+          odds: match.odds,
+          scores: match.scores,
         });
 
         if (before.createdAt.getTime() === before.updatedAt.getTime()) {

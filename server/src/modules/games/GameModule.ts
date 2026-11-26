@@ -10,6 +10,8 @@ import UpdateLiveGamesJob from './infra/jobs/UpdateLiveGamesJob';
 import CloseGamesJob from './infra/jobs/closeGamesJob';
 import GameController from './infra/http/gamesController';
 import PrismaGameRepo from './infra/persistence/PrismaGameRepo';
+import UserModule from '../users/infra/http/userModule';
+
 @Module({
   controllers: [GameController],
 
@@ -33,6 +35,8 @@ import PrismaGameRepo from './infra/persistence/PrismaGameRepo';
     UpdateLiveGamesJob,
     CloseGamesJob,
   ],
+
+  imports: [UserModule],
 
   exports: [
     CreateGameUseCase,

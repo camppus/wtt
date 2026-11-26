@@ -3,24 +3,29 @@ export default class Name {
     this.validate();
   }
 
-  private validate() {
-    const [firstName, ...restNames] = this.name.split(' ');
-    const lastName = restNames.join();
+  private validate(): void {
+    const parts = this.name.trim().split(/\s+/);
+
+    const firstName = parts[0];
+    const lastName = parts.slice(1).join(' ');
+
     if (!firstName || firstName.length < 3) {
       throw new Error('FirstName error');
     }
+
     if (!lastName || lastName.length < 3) {
       throw new Error('Lastname error');
     }
   }
 
   public getName() {
-    const [firstName, ...restNames] = this.name.split(' ');
-    const lastName = restNames.join();
+    const [firstName, ...restNames] = this.name.trim().split(/\s+/);
+    const lastName = restNames.join(' ');
+
     return {
       firstName,
       lastName,
-      initials: firstName[0] + lastName[0],
+      initials: `${firstName[0]}${lastName[0]}`.toUpperCase(),
     };
   }
 }

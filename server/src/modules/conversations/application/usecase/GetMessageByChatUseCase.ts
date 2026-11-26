@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import Id from '@/shared/entities/Id';
 import { PaginationInput } from '@/shared/types';
-import ConversationRepo from '../repositories/ConversationRepo';
+import type ConversationRepo from '../../domain/repositories/ConversationRepo';
 
 interface GetMessageByChatInput {
   chatId: Id;

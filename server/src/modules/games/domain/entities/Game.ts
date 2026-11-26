@@ -15,8 +15,6 @@ export enum OddType {
 }
 
 export interface Odd {
-  id: Id;
-  matchId: Id;
   type: OddType;
   value: number;
 }
@@ -35,7 +33,7 @@ export interface GameProps {
   startAt: Date;
   status: MatchStatus;
   completed: boolean;
-  scores: Score[];
+  scores: Score;
   createdAt: Date;
   updatedAt: Date;
   odds: Odd[];
@@ -49,8 +47,8 @@ export default class Game extends Entity {
   public toEntity(): GameProps {
     return {
       ...this.props,
-      odds: [...this.props.odds],
-      scores: [...this.props.scores],
+      odds: this.props.odds,
+      scores: this.props.scores,
     };
   }
 
@@ -59,11 +57,11 @@ export default class Game extends Entity {
   }
 
   public getOdds(): Odd[] {
-    return [...this.props.odds];
+    return this.props.odds;
   }
 
-  public getScores(): Score[] {
-    return [...this.props.scores];
+  public getScores(): Score {
+    return this.props.scores;
   }
 
   public isFinished(): boolean {
@@ -113,7 +111,7 @@ export default class Game extends Entity {
     return this.props.externId;
   }
 
-  public updateScores(scores: Score[]): void {
+  public updateScores(scores: Score): void {
     if (this.props.status === MatchStatus.FINISHED) {
       throw new Error('Cannot update scores of a finished game');
     }

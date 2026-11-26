@@ -9,6 +9,8 @@ export class Hasher {
   }
 
   public compare(hash: string, text: Password) {
+    console.log(text.getValue());
+    console.log(hash);
     return bcrypt.compareSync(text.getValue(), hash);
   }
 }

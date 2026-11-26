@@ -1,17 +1,19 @@
-import { PhoneNumber } from '@/shared/entities/PhoneNumber';
 import { Module } from '@nestjs/common';
 import ConsoleSms from './providers/ConsoleSms';
 import { SmsHub } from './providers/smshub';
-export abstract class SMSService {
-  public abstract send(to: PhoneNumber, message: string): Promise<void>;
+import { PhoneNumber } from '@/modules/users/domain/entities/PhoneNumber';
+export interface SMSService {
+  send(to: PhoneNumber, message: string): Promise<void>;
 }
 @Module({
   providers: [
     {
-      provide: SMSService,
-      useClass: process.env.NODE_ENV === 'production' ? SmsHub : ConsoleSms,
+      provide: 'SMSService',
+      useExisting: ConsoleSms,
     },
+    SmsHub,
+    ConsoleSms,
   ],
-  exports: [SMSService],
+  exports: ['SMSService'],
 })
 export default class SMSModule {}

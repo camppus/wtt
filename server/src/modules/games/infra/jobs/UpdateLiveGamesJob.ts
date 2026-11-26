@@ -34,14 +34,13 @@ export default class UpdateLiveGamesJob {
         if (!match) {
           continue;
         }
-        if (!match.scores.length) {
+        if (!match.scores) {
           continue;
         }
-        const score = match.scores[0];
-
+        const score = match.scores;
         await this.updateGameUseCase.handle({
           gameId: game.getId().getValue(),
-          scores: [score],
+          scores: score,
         });
       }
 

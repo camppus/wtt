@@ -15,5 +15,6 @@ export interface IPaymentGetaway<T> {
       useClass: WipayService,
     },
   ],
+  exports: ['IPaymentGetaway'],
 })
 export default class PaymentGetawayModule {}

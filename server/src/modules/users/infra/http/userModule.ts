@@ -20,7 +20,14 @@ import PrismaUserRepository from '../persistence/PrismaUserRepository';
       useClass: PrismaUserRepository,
     },
   ],
-  exports: ['UserRepo'],
+  exports: [
+    'UserRepo',
+    CreateUserUseCase,
+    UpdateUserUseCase,
+    GetUserByIdUseCase,
+    GetUsersUseCase,
+    ToogleUserUseCase,
+  ],
   imports: [],
 })
 export default class UserModule {}

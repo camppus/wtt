@@ -6,7 +6,7 @@ import { GameProps, Score } from '../../domain/entities/Game';
 
 export interface UpdateGameDto {
   gameId: string;
-  scores: Score[];
+  scores: Score;
 }
 
 @Injectable()
