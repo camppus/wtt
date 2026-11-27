@@ -17,17 +17,17 @@ export default class CreateWidthdrawslsUseCase {
 
   public async handle(dto: CreateWidthDralwsDto, userId: Id) {
     const amount = new Money(dto.amount);
+    Money.ensureIsPayable(dto.amount);
     const { coordnate, method } = dto;
-    const user = await this.getUserByIdUc.handle(userId);
-
-    if (user.balance.getValue() < amount.getValue()) {
+    const user = await this.getUserByIdUc.getEntitie(userId);
+    if (user.hasSuficientBalance(amount)) {
       throw new Error('Insuficient eranings');
     }
     const now = new Date();
     const widthdrawls = new Widthdrawsl({
       amount,
       createdAt: now,
-      fee: new Money(0, true),
+      fee: Money.zero(),
       id: Id.generate(),
       updatedAt: now,
       userId,

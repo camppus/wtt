@@ -31,7 +31,7 @@ export default class CreateUserUseCase {
 
     const now = new Date();
     const user = new User({
-      balance: new Money(0, true),
+      balance: Money.zero(),
       createdAt: now,
       id: Id.generate().getValue(),
       isActive: true,

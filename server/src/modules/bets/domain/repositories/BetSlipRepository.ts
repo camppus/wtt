@@ -1,21 +1,26 @@
 import Id from '@/shared/entities/Id';
 import BetSlip from '../entities/BetSlip';
-import { BetSlipStatus } from '../entities/BetSlip';
-import TransactionContext from '@/shared/types';
+import LedgerEntry from '@/modules/transactions/domain/entities/LedgerEntry';
+import Money from '@/shared/entities/Money';
+import { PaginationInput, Pagination } from '@/shared/types';
+import BetPick from '../entities/BetPick';
 
 export default interface BetSlipRepository {
   findById(id: Id): Promise<BetSlip | null>;
-
+  findPicks(betSlipId: Id): Promise<BetPick[]>;
+  findPick(pickId: Id): Promise<BetPick>;
   findByUserId(
     userId: Id,
-    options?: {
-      status?: BetSlipStatus;
-      limit?: number;
-      offset?: number;
-    },
-  ): Promise<BetSlip[]>;
+    options: PaginationInput,
+  ): Promise<Pagination<BetSlip>>;
+  findAll(options: PaginationInput): Promise<Pagination<BetSlip>>;
+  update(betSlip: BetSlip): Promise<void>;
 
-  countByUserId(userId: Id, status?: BetSlipStatus): Promise<number>;
+  transactionalBetCreate(data: {
+    bet: BetSlip;
+    decriseAmount: Money;
+    ledger?: LedgerEntry;
+  }): Promise<void>;
 
-  save(betSlip: BetSlip, transaction?: TransactionContext): Promise<void>;
+  hasBetToday(userId: Id): Promise<boolean>;
 }

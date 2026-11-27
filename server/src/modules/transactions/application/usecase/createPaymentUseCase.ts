@@ -20,6 +20,7 @@ export default class CreatePaymentUseCase {
 
   public async handle(dto: CreatePaymentDto, userId: Id) {
     const amount = new Money(dto.amount);
+    Money.ensureIsPayable(dto.amount);
     const reference = Payment.generateReference();
     const billing = await this.paymentGetaway.pay({
       reference,
@@ -35,7 +36,7 @@ export default class CreatePaymentUseCase {
       expiresAt: null,
       externalReference: reference,
       failedAt: null,
-      fee: new Money(0, true),
+      fee: Money.zero(),
       id: Id.generate(),
       idempotencyKey: dto.key,
       metadata: billing,

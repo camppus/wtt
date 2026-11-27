@@ -27,14 +27,17 @@ export default class CreateLedgerEntryUseCase {
   ) {}
 
   async execute(input: CreateLedgerEntryInputDTO): Promise<LedgerEntry> {
+    const amount = new Money(input.amount);
+    Money.ensureIsPayable(input.amount);
+    Money.ensureIsPayable(input.balanceAfter);
     const entry = LedgerEntry.create({
       id: Id.generate(),
       userId: new Id(input.userId),
       type: input.type,
       direction: input.direction,
-      amount: new Money(input.amount, true),
-      balanceBefore: new Money(input.balanceBefore, true),
-      balanceAfter: new Money(input.balanceAfter, true),
+      amount,
+      balanceBefore: new Money(input.balanceBefore),
+      balanceAfter: new Money(input.balanceAfter),
       referenceId: input.referenceId ? new Id(input.referenceId) : undefined,
       description: input.description,
     });

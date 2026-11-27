@@ -6,7 +6,6 @@ export enum ProgressionStepStatus {
   PENDING = 'PENDING',
   WON = 'WON',
   LOST = 'LOST',
-  VOID = 'VOID',
 }
 
 export interface BettingProgressionStepProps {
@@ -14,7 +13,7 @@ export interface BettingProgressionStepProps {
   progressionId: Id;
   stepNumber: number;
   status: ProgressionStepStatus;
-  betId?: Id;
+  betId: Id;
   stakeAmount: Money;
   payoutAmount: Money;
   completedAt?: Date;
@@ -27,17 +26,15 @@ export interface CreateBettingProgressionStepInput {
   progressionId: Id;
   stepNumber: number;
   stakeAmount: Money;
-  betId?: Id;
+  betId: Id;
 }
 
 export default class BettingProgressionStep extends Entity {
   private props: BettingProgressionStepProps;
 
-  private constructor(props: BettingProgressionStepProps) {
+  constructor(props: BettingProgressionStepProps) {
     super(props.id, props.createdAt, props.updatedAt);
-
     this.props = props;
-
     this.validateInvariants();
   }
 
@@ -71,7 +68,7 @@ export default class BettingProgressionStep extends Entity {
     return this.props.status;
   }
 
-  public get betId(): Id | undefined {
+  public get betId(): Id {
     return this.props.betId;
   }
 
@@ -99,10 +96,6 @@ export default class BettingProgressionStep extends Entity {
     return this.props.status === ProgressionStepStatus.LOST;
   }
 
-  public get isVoid(): boolean {
-    return this.props.status === ProgressionStepStatus.VOID;
-  }
-
   public markAsWon(payout: Money): void {
     this.assertPending();
 
@@ -117,16 +110,6 @@ export default class BettingProgressionStep extends Entity {
     this.assertPending();
 
     this.props.status = ProgressionStepStatus.LOST;
-    this.props.payoutAmount = Money.zero();
-    this.props.completedAt = new Date();
-
-    this.touch();
-  }
-
-  public void(): void {
-    this.assertPending();
-
-    this.props.status = ProgressionStepStatus.VOID;
     this.props.payoutAmount = Money.zero();
     this.props.completedAt = new Date();
 
@@ -160,12 +143,6 @@ export default class BettingProgressionStep extends Entity {
     if (this.props.status === ProgressionStepStatus.LOST) {
       if (!this.props.completedAt) {
         throw new Error('Lost step must have completedAt');
-      }
-    }
-
-    if (this.props.status === ProgressionStepStatus.VOID) {
-      if (!this.props.completedAt) {
-        throw new Error('Void step must have completedAt');
       }
     }
   }

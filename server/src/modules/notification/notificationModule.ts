@@ -20,6 +20,7 @@ import NotificationHandler from './application/handlers/NotificationHandler';
     ReadNotification,
     NotificationHandler,
     PrismaNotificationRepository,
+    NotificationHandler,
     {
       provide: 'NotificationRepository',
       useExisting: PrismaNotificationRepository,

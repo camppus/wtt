@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Id from '@/shared/entities/Id';
 import Money from '@/shared/entities/Money';
 import BetPick from './BetPick';
@@ -56,51 +57,54 @@ export default class BetSlip extends Entity {
     });
   }
 
-  public get userId(): Id {
+  public userId(): Id {
     return this.props.userId;
   }
 
-  public get stake(): Money {
+  public stake(): Money {
     return this.props.stake;
   }
 
-  public get totalOdd(): number {
+  public belongsTome(userId: Id) {
+    return this.userId().equals(userId);
+  }
+  public totalOdd(): number {
     return this.props.totalOdd;
   }
 
-  public get possibleWin(): Money {
+  public possibleWin(): Money {
     return this.props.possibleWin;
   }
 
-  public get status(): BetSlipStatus {
+  public status(): BetSlipStatus {
     return this.props.status;
   }
 
-  public get picks(): BetPick[] {
+  public picks(): BetPick[] {
     return [...this.props.picks];
   }
 
-  public get resolvedAt(): Date | undefined {
+  public resolvedAt(): Date | undefined {
     return this.props.resolvedAt;
   }
 
-  public get isPending(): boolean {
+  public isPending(): boolean {
     return this.props.status === BetSlipStatus.PENDING;
   }
 
-  public get isResolved(): boolean {
+  public isResolved(): boolean {
     return this.props.status !== BetSlipStatus.PENDING;
   }
 
-  public get isWon(): boolean {
+  public isWon(): boolean {
     return this.props.status === BetSlipStatus.WON;
   }
 
-  public get isLost(): boolean {
+  public isLost(): boolean {
     return this.props.status === BetSlipStatus.LOST;
   }
 
-  public get isCanceled(): boolean {
+  public isCanceled(): boolean {
     return this.props.status === BetSlipStatus.CANCELED;
   }
 
@@ -121,7 +125,7 @@ export default class BetSlip extends Entity {
     return this.props.picks.some((pick) => pick.getMatchId().equals(matchId));
   }
 
-  public getPickCount(): number {
+  public PickCount(): number {
     return this.props.picks.length;
   }
 
@@ -164,7 +168,7 @@ export default class BetSlip extends Entity {
   }
 
   public canCancel(): boolean {
-    return this.isPending;
+    return this.isPending();
   }
 
   public recalculate(): void {
@@ -181,13 +185,12 @@ export default class BetSlip extends Entity {
     if (picks.length === 0) {
       throw new Error('Cannot calculate odd without picks');
     }
-
     return picks.reduce((total, pick) => total * pick.getOddValue(), 1);
   }
 
   private static calculatePossibleWin(stake: Money, totalOdd: number): Money {
-    // formula to calc possible win
-    return stake.multiply(totalOdd);
+    const betAmount = stake.getValue();
+    return new Money(Math.floor(betAmount / 1000) * 30_000);
   }
 
   private validateInvariants(): void {

@@ -20,6 +20,7 @@ import AuthModule from './modules/auth/authModule';
 import AuthMiddleware from './modules/auth/infra/http/authMiddleware';
 import { CacheModule } from './infra/caching';
 import NotificationModule from './modules/notification/notificationModule';
+import BetModule from './modules/bets/betModule';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import NotificationModule from './modules/notification/notificationModule';
     AuthModule,
     CacheModule,
     NotificationModule,
+    BetModule,
   ],
 })
 export class AppModule implements NestModule {

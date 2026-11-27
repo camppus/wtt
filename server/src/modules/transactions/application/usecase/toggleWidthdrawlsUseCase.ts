@@ -33,7 +33,6 @@ export default class ToggleWidthDrawlsUseCase {
       const balance = new Money(
         user.getbalance().getValue() -
           widthdrawls.toEntitie().amount.getValue(),
-        true,
       );
       user.changeBalance(balance);
       await this.userRepo.save(user);

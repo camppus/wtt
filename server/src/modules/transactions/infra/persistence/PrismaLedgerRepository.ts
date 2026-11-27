@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import {
   LedgerEntry as PrismaLedgerEntry,
@@ -115,9 +111,9 @@ export default class PrismaLedgerRepository implements LedgerRepository {
       userId: new Id(entry.userId),
       type: entry.type as LedgerEntryType,
       direction: entry.direction as LedgerEntryDirection,
-      amount: new Money(entry.amount.toNumber(), true),
-      balanceBefore: new Money(entry.balanceBefore.toNumber(), true),
-      balanceAfter: new Money(entry.balanceAfter.toNumber(), true),
+      amount: new Money(entry.amount.toNumber()),
+      balanceBefore: new Money(entry.balanceBefore.toNumber()),
+      balanceAfter: new Money(entry.balanceAfter.toNumber()),
       referenceId: entry.referenceId ? new Id(entry.referenceId) : undefined,
       description: entry.description ?? undefined,
       createdAt: entry.createdAt,

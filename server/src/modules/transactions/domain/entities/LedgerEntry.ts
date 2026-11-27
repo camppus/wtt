@@ -47,7 +47,7 @@ export interface CreateLedgerEntryInput {
 export default class LedgerEntry extends Entity {
   private props: LedgerEntryProps;
 
-  private constructor(props: LedgerEntryProps) {
+  constructor(props: LedgerEntryProps) {
     super(props.id, props.createdAt, props.updatedAt);
 
     this.props = props;

@@ -1,23 +1,27 @@
 export default class Money {
-  constructor(
-    private readonly value: number,
-    private readonly isInitial: boolean = false,
-  ) {
-    if (!isInitial) {
-      this.validate();
+  constructor(private readonly value: number) {
+    this.validate();
+  }
+
+  static zero(): Money {
+    return new Money(0);
+  }
+
+  public format(): string {
+    return `${this.getValue().toLocaleString('pt-PT')} Kz`;
+  }
+
+  private validate(): void {
+    if (!Number.isFinite(this.value)) {
+      throw new Error('Money value must be a valid number');
+    }
+
+    if (this.value < 0) {
+      throw new Error('Money cannot be negative');
     }
   }
 
-  static zero() {
-    return new Money(0, true);
-  }
-  private validate() {
-    if (this.value <= 1) {
-      throw new Error('Money cant be 0');
-    }
-  }
-
-  public getValue() {
+  public getValue(): number {
     return this.value;
   }
 
@@ -25,15 +29,29 @@ export default class Money {
     return new Money(this.value * value);
   }
 
-  public isMinorThen(money: Money) {
-    return this.getValue() < money.getValue();
+  public subtract(value: Money): Money {
+    return new Money(this.value - value.getValue());
   }
 
-  public isZero() {
-    return this.getValue() === 0;
+  public isMinorThan(money: Money): boolean {
+    return this.value < money.getValue();
   }
 
-  isNegative() {
-    return this.getValue() < 0;
+  public isNotMinor(money: Money): boolean {
+    return this.value >= money.getValue();
+  }
+
+  public isZero(): boolean {
+    return this.value === 0;
+  }
+
+  public isNegative(): boolean {
+    return this.value < 0;
+  }
+
+  public static ensureIsPayable(value: number): void {
+    if (!Number.isFinite(value) || value <= 0) {
+      throw new Error('O valor da aposta deve ser positivo');
+    }
   }
 }

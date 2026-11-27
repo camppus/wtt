@@ -37,7 +37,7 @@ export default class ResolvePickService {
     }
 
     const now = Date.now();
-    const isMaxedSteps = userProgression.isMaxedSteps();
+    const isMaxedSteps = userProgression.isInLooping();
 
     return Promise.all(
       picks.map(async (pick) => {

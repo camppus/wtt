@@ -3,9 +3,8 @@ import Entity from '@/shared/entities/Entiry';
 
 export enum ProgressionStatus {
   ACTIVE = 'ACTIVE',
-  COMPLETED = 'COMPLETED',
+  LOOPING = 'LOOPING',
   FAILED = 'FAILED',
-  CANCELLED = 'CANCELLED',
 }
 
 export interface BettingProgressionProps {
@@ -29,18 +28,10 @@ export interface CreateBettingProgressionInput {
 export default class BettingProgression extends Entity {
   private props: BettingProgressionProps;
 
-  private constructor(props: BettingProgressionProps) {
+  constructor(props: BettingProgressionProps) {
     super(props.id, props.createdAt, props.updatedAt);
     this.props = props;
     this.validateInvariants();
-  }
-
-  public isMaxedSteps() {
-    return this.props.currentStep >= 3;
-  }
-
-  public getMaxOdds() {
-    return 6.0;
   }
 
   public static create(
@@ -59,61 +50,79 @@ export default class BettingProgression extends Entity {
     });
   }
 
-  public get userId(): Id {
+  public userId(): Id {
     return this.props.userId;
   }
 
-  public get currentStep(): number {
+  public getNextStep() {
+    return this.currentStep() + 1;
+  }
+  public getMaxOdds() {
+    return 6.0;
+  }
+  public currentStep(): number {
     return this.props.currentStep;
   }
 
-  public get status(): ProgressionStatus {
+  public status(): ProgressionStatus {
     return this.props.status;
   }
 
-  public get startedAt(): Date {
+  public startedAt(): Date {
     return this.props.startedAt;
   }
 
-  public get completedAt(): Date | undefined {
+  public completedAt(): Date | undefined {
     return this.props.completedAt;
   }
 
-  public get failedAt(): Date | undefined {
+  public failedAt(): Date | undefined {
     return this.props.failedAt;
   }
 
-  public get isActive(): boolean {
+  public isActive(): boolean {
     return this.props.status === ProgressionStatus.ACTIVE;
   }
 
-  public get isCompleted(): boolean {
-    return this.props.status === ProgressionStatus.COMPLETED;
+  public isInLooping(): boolean {
+    return this.props.status === ProgressionStatus.LOOPING;
   }
 
-  public get isFailed(): boolean {
+  public isFailed(): boolean {
     return this.props.status === ProgressionStatus.FAILED;
   }
 
-  public get isCancelled(): boolean {
-    return this.props.status === ProgressionStatus.CANCELLED;
-  }
-
   public advance(): void {
-    this.assertActive();
-
-    this.props.currentStep += 1;
-
-    if (this.props.currentStep >= 3) {
-      this.complete();
+    if (this.isInLooping()) {
+      this.touch();
       return;
     }
+    this.assertActive();
+    this.props.currentStep += 1;
+    if (this.props.currentStep === 3) {
+      this.enterLooping();
+      return;
+    }
+    this.touch();
+  }
+
+  public reset(): void {
+    if (
+      this.props.status !== ProgressionStatus.ACTIVE &&
+      this.props.status !== ProgressionStatus.LOOPING
+    ) {
+      throw new Error(`Cannot reset a ${this.props.status} progression`);
+    }
+
+    this.props.currentStep = 0;
+    this.props.status = ProgressionStatus.ACTIVE;
+    this.props.completedAt = undefined;
 
     this.touch();
   }
 
   public fail(): void {
-    this.assertActive();
+    this.assertActiveOrLooping();
 
     this.props.status = ProgressionStatus.FAILED;
     this.props.failedAt = new Date();
@@ -121,28 +130,8 @@ export default class BettingProgression extends Entity {
     this.touch();
   }
 
-  public cancel(): void {
-    this.assertActive();
-
-    this.props.status = ProgressionStatus.CANCELLED;
-
-    this.touch();
-  }
-
-  public reset(): void {
-    this.assertActive();
-
-    this.props.currentStep = 0;
-
-    this.touch();
-  }
-
-  private complete(): void {
-    this.assertActive();
-
-    this.props.status = ProgressionStatus.COMPLETED;
-    this.props.completedAt = new Date();
-
+  private enterLooping(): void {
+    this.props.status = ProgressionStatus.LOOPING;
     this.touch();
   }
 
@@ -152,15 +141,33 @@ export default class BettingProgression extends Entity {
     }
   }
 
+  private assertActiveOrLooping(): void {
+    if (!this.isActive && !this.isInLooping) {
+      throw new Error(`Cannot modify a ${this.props.status} progression`);
+    }
+  }
+
   private validateInvariants(): void {
     if (this.props.currentStep < 0) {
       throw new Error('Current step cannot be negative');
     }
 
-    if (this.props.status === ProgressionStatus.COMPLETED) {
-      if (!this.props.completedAt) {
-        throw new Error('Completed progression must have completedAt');
-      }
+    if (this.props.currentStep > 2) {
+      throw new Error('Current step cannot be greater than 2');
+    }
+
+    if (
+      this.props.status === ProgressionStatus.LOOPING &&
+      this.props.currentStep !== 2
+    ) {
+      throw new Error('Looping progression must be at step 2');
+    }
+
+    if (
+      this.props.status === ProgressionStatus.ACTIVE &&
+      this.props.currentStep >= 2
+    ) {
+      throw new Error('Active progression cannot be at the looping step');
     }
 
     if (this.props.status === ProgressionStatus.FAILED) {
@@ -169,11 +176,8 @@ export default class BettingProgression extends Entity {
       }
     }
 
-    if (
-      this.props.status === ProgressionStatus.ACTIVE &&
-      this.props.currentStep >= 3
-    ) {
-      throw new Error('Active progression cannot have completed steps');
+    if (this.props.status !== ProgressionStatus.FAILED && this.props.failedAt) {
+      throw new Error('Only failed progression can have failedAt');
     }
   }
 

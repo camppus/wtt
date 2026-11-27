@@ -22,6 +22,9 @@ export default class User extends Entity {
     super(id, props.createdAt, props.updatedAt);
   }
 
+  public hasSuficientBalance(value: Money) {
+    return this.props.balance.isNotMinor(value);
+  }
   public getName() {
     return this.props.name;
   }

@@ -116,7 +116,7 @@ export default class PrismaUserRepository implements UserRepo {
     console.log(prismaUser);
     const phone = new PhoneNumber(prismaUser.phone);
     const name = new Name(prismaUser.name);
-    const balance = new Money(prismaUser.balance.toNumber(), true);
+    const balance = new Money(prismaUser.balance.toNumber());
     const user = new User({
       balance,
       createdAt: prismaUser.createdAt,

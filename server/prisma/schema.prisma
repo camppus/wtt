@@ -83,16 +83,14 @@ enum ChallengeContext {
 
 enum ProgressionStatus {
   ACTIVE
-  COMPLETED
+  LOOPING
   FAILED
-  CANCELLED
 }
 
 enum ProgressionStepStatus {
   PENDING
   WON
   LOST
-  VOID
 }
 
 model User {
@@ -273,10 +271,19 @@ model BetSlip {
   progressionStep BettingProgressionStep?
   createdAt   DateTime @default(now())
   resolvedAt  DateTime?
+  updatedAt DateTime @updatedAt
   @@index([userId, createdAt])
   @@index([userId, status, createdAt])
   @@index([status, createdAt])
   @@index([status, resolvedAt])
+}
+
+
+ enum BetPickStatus {
+  PENDING
+  WON
+  LOST
+  VOID
 }
 
 model BetPick {
@@ -285,8 +292,11 @@ model BetPick {
   matchId   String
   oddType  OddType
   oddValue Decimal  @db.Decimal(6, 2)
+  status BetPickStatus @default(PENDING)
   match    Match     @relation(fields: [matchId],references: [id])
   betSlip  BetSlip   @relation(fields: [betSlipId],references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@unique([betSlipId, matchId])
   @@index([matchId])
   @@index([matchId, oddType])

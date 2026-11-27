@@ -16,7 +16,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Wtt API')
-    .setDescription('APi de pagamentos')
+    .setDescription('FootBall API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
