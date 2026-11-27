@@ -31,20 +31,10 @@ export default class BetPick extends Entity {
     this.validate();
   }
 
-  public static create(props: BetPickProps): BetPick {
-    return new BetPick({
-      ...props,
-      status: props.status ?? BetPickStatus.PENDING,
-      createdAt: props.createdAt ?? new Date(),
-      updatedAt: props.updatedAt ?? new Date(),
-    });
-  }
-
   public getBetSlipId(): Id {
     return this.props.betSlipId;
   }
 
-  // alias que o BetSlip usava
   public getSlipId(): Id {
     return this.props.betSlipId;
   }
@@ -68,8 +58,6 @@ export default class BetPick extends Entity {
   public getStatus(): BetPickStatus {
     return this.props.status ?? BetPickStatus.PENDING;
   }
-
-  // ---------- Métodos que o BetSlip precisa ----------
 
   public isPending(): boolean {
     return this.getStatus() === BetPickStatus.PENDING;

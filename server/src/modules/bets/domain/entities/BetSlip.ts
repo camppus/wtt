@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import Id from '@/shared/entities/Id';
 import Money from '@/shared/entities/Money';
 import BetPick from './BetPick';
@@ -20,8 +19,8 @@ export interface BetSlipProps {
   status: BetSlipStatus;
   picks: BetPick[];
   createdAt: Date;
-  resolvedAt?: Date;
   updatedAt: Date;
+  resolvedAt?: Date;
 }
 
 export interface CreateBetSlipInput {
@@ -33,20 +32,17 @@ export interface CreateBetSlipInput {
 }
 
 export default class BetSlip extends Entity {
-  constructor(private props: BetSlipProps) {
+  constructor(private readonly props: BetSlipProps) {
     super(props.id, props.createdAt, props.updatedAt);
     this.validateInvariants();
   }
 
   public static create(input: CreateBetSlipInput): BetSlip {
-    if (!input.picks || input.picks.length === 0) {
+    if (input.picks.length === 0) {
       throw new Error('BetSlip must have at least one pick');
     }
-
-    const now = input.createdAt ?? new Date();
     const totalOdd = BetSlip.calculateTotalOdd(input.picks);
     const possibleWin = BetSlip.calculatePossibleWin(input.stake, totalOdd);
-
     return new BetSlip({
       id: input.id,
       userId: input.userId,
@@ -55,99 +51,95 @@ export default class BetSlip extends Entity {
       possibleWin,
       status: BetSlipStatus.PENDING,
       picks: [...input.picks],
-      createdAt: now,
-      updatedAt: now,
+      createdAt: input.createdAt ?? new Date(),
+      updatedAt: new Date(),
     });
   }
 
   public get userId(): Id {
     return this.props.userId;
   }
+
   public get stake(): Money {
     return this.props.stake;
   }
+
   public get totalOdd(): number {
     return this.props.totalOdd;
   }
+
   public get possibleWin(): Money {
     return this.props.possibleWin;
   }
-  public getStatus(): BetSlipStatus {
+
+  public get status(): BetSlipStatus {
     return this.props.status;
   }
+
   public get picks(): BetPick[] {
     return [...this.props.picks];
   }
+
   public get resolvedAt(): Date | undefined {
     return this.props.resolvedAt;
   }
+
   public get isPending(): boolean {
     return this.props.status === BetSlipStatus.PENDING;
   }
+
   public get isResolved(): boolean {
     return this.props.status !== BetSlipStatus.PENDING;
   }
+
   public get isWon(): boolean {
     return this.props.status === BetSlipStatus.WON;
   }
+
   public get isLost(): boolean {
     return this.props.status === BetSlipStatus.LOST;
   }
+
   public get isCanceled(): boolean {
     return this.props.status === BetSlipStatus.CANCELED;
   }
 
   public addPick(pick: BetPick): void {
     this.assertPending('add pick');
-
-    const alreadyExists = this.props.picks.some((p) =>
-      p.getId().equals(pick.getId()),
+    const hasSameMatch = this.props.picks.some((existingPick) =>
+      existingPick.getMatchId().equals(pick.getMatchId()),
     );
-    if (alreadyExists) {
-      throw new Error('Pick already exists in this BetSlip');
+    if (hasSameMatch) {
+      throw new Error('A pick for this match already exists');
     }
-
-    const hasConflict = this.props.picks.some((p) => p.conflictsWith(pick));
-    if (hasConflict) {
-      throw new Error('Conflicting pick for same event/market');
-    }
-
     this.props.picks.push(pick);
     this.recalculate();
     this.touch();
   }
 
-  public removePick(pickId: Id): void {
-    this.assertPending('remove pick');
+  public hasPickForMatch(matchId: Id): boolean {
+    return this.props.picks.some((pick) => pick.getMatchId().equals(matchId));
+  }
 
-    const before = this.props.picks.length;
-    this.props.picks = this.props.picks.filter(
-      (p) => !p.getId().equals(pickId),
-    );
-
-    if (this.props.picks.length === before) {
-      throw new Error('Pick not found in BetSlip');
-    }
-    if (this.props.picks.length === 0) {
-      throw new Error('BetSlip cannot be left without picks');
-    }
-
-    this.recalculate();
-    this.touch();
+  public getPickCount(): number {
+    return this.props.picks.length;
   }
 
   public settle(): void {
     this.assertPending('settle');
 
-    if (this.props.picks.some((p) => p.isPending())) {
+    if (this.props.picks.some((pick) => pick.isPending())) {
       throw new Error('Cannot settle BetSlip with pending picks');
     }
 
-    if (this.props.picks.every((p) => p.isWon())) {
+    const allWon = this.props.picks.every((pick) => pick.isWon());
+
+    if (allWon) {
       this.markAsWon();
-    } else {
-      this.markAsLost();
+      return;
     }
+
+    this.markAsLost();
   }
 
   public markAsWon(): void {
@@ -181,26 +173,66 @@ export default class BetSlip extends Entity {
       this.props.stake,
       this.props.totalOdd,
     );
+
+    this.touch();
   }
 
   private static calculateTotalOdd(picks: BetPick[]): number {
-    return picks.reduce((acc, pick) => acc * pick.getOddValue(), 1);
+    if (picks.length === 0) {
+      throw new Error('Cannot calculate odd without picks');
+    }
+
+    return picks.reduce((total, pick) => total * pick.getOddValue(), 1);
   }
 
   private static calculatePossibleWin(stake: Money, totalOdd: number): Money {
-    // calc possiblewin per game
-    return stake;
+    // formula to calc possible win
+    return stake.multiply(totalOdd);
   }
 
   private validateInvariants(): void {
     if (this.props.picks.length === 0) {
       throw new Error('BetSlip must have at least one pick');
     }
-    if (this.props.totalOdd < 1) {
-      throw new Error('Total odd must be >= 1');
+
+    if (this.props.stake.isZero() || this.props.stake.isNegative()) {
+      throw new Error('BetSlip stake must be greater than zero');
     }
-    if (this.isResolved && !this.props.resolvedAt) {
+
+    if (!Number.isFinite(this.props.totalOdd)) {
+      throw new Error('Total odd must be a finite number');
+    }
+
+    if (this.props.totalOdd < 1) {
+      throw new Error('Total odd must be greater than or equal to 1');
+    }
+
+    if (this.props.possibleWin.isNegative()) {
+      throw new Error('Possible win cannot be negative');
+    }
+
+    if (this.props.status !== BetSlipStatus.PENDING && !this.props.resolvedAt) {
       throw new Error('Resolved BetSlip must have resolvedAt');
+    }
+
+    if (this.props.status === BetSlipStatus.PENDING && this.props.resolvedAt) {
+      throw new Error('Pending BetSlip cannot have resolvedAt');
+    }
+
+    this.validateDuplicateMatches();
+  }
+
+  private validateDuplicateMatches(): void {
+    const matchIds = this.props.picks.map((pick) =>
+      pick.getMatchId().getValue(),
+    );
+
+    const uniqueMatchIds = new Set(matchIds);
+
+    if (matchIds.length !== uniqueMatchIds.size) {
+      throw new Error(
+        'BetSlip cannot contain multiple picks for the same match',
+      );
     }
   }
 
@@ -209,6 +241,10 @@ export default class BetSlip extends Entity {
       throw new Error(`Cannot ${action} on a ${this.props.status} BetSlip`);
     }
   }
+
+  // ============================================================
+  // Persistence
+  // ============================================================
 
   public toProps(): BetSlipProps {
     return {

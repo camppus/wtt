@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type GameRepo from '../../domain/repositories/GameRepo';
-import { GameProps } from '../../domain/entities/Game';
+import Game, { GameProps } from '../../domain/entities/Game';
 import Id from '@/shared/entities/Id';
 
 @Injectable()
@@ -18,5 +18,15 @@ export default class GetGameUseCase {
     }
 
     return game.toEntity();
+  }
+
+  public async getEntitie(id: Id): Promise<Game> {
+    const game = await this.repo.getById(id);
+
+    if (!game) {
+      throw new NotFoundException('Game not found');
+    }
+
+    return game;
   }
 }

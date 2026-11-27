@@ -24,6 +24,8 @@ import ToogleWidthdralwsDto from '../../application/dto/toogleWidthDralwsDto';
 import ToggleWidthDrawlsUseCase from '../../application/usecase/toggleWidthdrawlsUseCase';
 import IsAdminGuard from '@/modules/auth/infra/http/isAdminGuard';
 import IsActiveUserGuard from '@/modules/auth/infra/http/userStatusGuard';
+import ListLedgerEntriesUseCase from '../../application/usecase/ListLedgerEntriesUseCase';
+import GetLedgerEntryUseCase from '../../application/usecase/GetLedgerEntryUseCase';
 
 @ApiTags('Transactions')
 @Controller('transactions')
@@ -35,6 +37,8 @@ export default class TransactionController {
     private readonly getPaymentsUC: GetPaymentUseCases,
     private readonly getWithdrawalsUC: GetWidthrawlsUseCase,
     private readonly toggleWithdrawslUc: ToggleWidthDrawlsUseCase,
+    private readonly listLedgerEntriesUC: ListLedgerEntriesUseCase,
+    private readonly getLedgerEntryUC: GetLedgerEntryUseCase,
   ) {}
 
   @Post('payments')
@@ -106,5 +110,44 @@ export default class TransactionController {
       userId: new Id(userId),
       isAdmin: isadmin,
     });
+  }
+
+  @Get('ledger')
+  @ApiOperation({
+    summary: 'Listar histórico financeiro do usuário autenticado',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+  })
+  public async getMyLedger(
+    @CurrentUserId() userId: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.listLedgerEntriesUC.execute(userId, {
+      page: Number(page),
+      limit: Number(limit),
+    });
+  }
+  @Get('ledger/:id')
+  @ApiOperation({
+    summary: 'Consultar uma entrada do histórico financeiro',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Entrada do ledger encontrada',
+  })
+  public async getLedgerEntry(
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.getLedgerEntryUC.execute(userId, id);
   }
 }

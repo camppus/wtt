@@ -19,6 +19,7 @@ import SecurityModule from './infra/security';
 import AuthModule from './modules/auth/authModule';
 import AuthMiddleware from './modules/auth/infra/http/authMiddleware';
 import { CacheModule } from './infra/caching';
+import NotificationModule from './modules/notification/notificationModule';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { CacheModule } from './infra/caching';
     ConversationModule,
     AuthModule,
     CacheModule,
+    NotificationModule,
   ],
 })
 export class AppModule implements NestModule {

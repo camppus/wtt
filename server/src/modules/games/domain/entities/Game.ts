@@ -67,21 +67,14 @@ export default class Game extends Entity {
   public isFinished(): boolean {
     return this.props.status === MatchStatus.FINISHED;
   }
-
+  public isClosed(): boolean {
+    return this.props.status === MatchStatus.CLOSED;
+  }
+  public isCompleted(): boolean {
+    return this.props.completed;
+  }
   public isCanceled(): boolean {
     return this.props.status === MatchStatus.CANCELED;
-  }
-
-  public cancel(): void {
-    if (
-      this.props.status !== MatchStatus.OPEN &&
-      this.props.status !== MatchStatus.CLOSED
-    ) {
-      throw new Error('Only open or closed games can be canceled');
-    }
-
-    this.props.status = MatchStatus.CANCELED;
-    this.touch();
   }
 
   public close(): void {

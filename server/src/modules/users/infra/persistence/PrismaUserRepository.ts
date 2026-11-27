@@ -28,8 +28,8 @@ export default class PrismaUserRepository implements UserRepo {
     const userName = user.toEnttie().name;
     const name =
       userName.getName().firstName + ' ' + userName.getName().lastName;
-    await this.prisma.user.create({
-      data: {
+    await this.prisma.user.upsert({
+      create: {
         name,
         password: user.getPassword(),
         phone: user.getPhone().getValue(),
@@ -37,6 +37,15 @@ export default class PrismaUserRepository implements UserRepo {
         id: user.getId().getValue(),
         isActive: user.isActive(),
         role: user.getRole(),
+      },
+      update: {
+        name,
+        phone: user.getPhone().getValue(),
+        balance: user.getbalance().getValue(),
+        isActive: user.isActive(),
+      },
+      where: {
+        id: user.getId().getValue(),
       },
     });
   }
